@@ -23,7 +23,6 @@ LOG_MODULE_REGISTER(rv3032_counter, CONFIG_COUNTER_LOG_LEVEL);
 
 struct rv3032_counter_config {
 	struct counter_config_info counter_info;
-	uint32_t base;
 	const struct device *mfd;
 };
 
@@ -255,16 +254,6 @@ uint32_t rv3032_counter_get_top_value(const struct device *dev)
 	val = timer[0] | (timer[1] << 8);
 
 	return val;
-}
-
-uint32_t rv3032_counter_get_guard_period(const struct device *dev, uint32_t flags)
-{
-	return -ENOTSUP;
-}
-
-int rv3032_counter_set_guard_period(const struct device *dev, uint32_t ticks, uint32_t flags)
-{
-	return -ENOTSUP;
 }
 
 uint32_t rv3032_counter_get_freq(const struct device *dev)
