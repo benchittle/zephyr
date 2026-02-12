@@ -47,16 +47,14 @@ int rv3032_counter_stop(const struct device *dev)
 	return mfd_rv3032_update_reg8(config->mfd, RV3032_REG_CONTROL1, RV3032_CONTROL1_TE, 0);
 }
 
+/* The RV-3032 does not support reading the current value of the periodic
+ * countdown timer.
+ */
 int rv3032_counter_get_value(const struct device *dev, uint32_t *ticks)
 {
-	const struct rv3032_counter_config *config = dev->config;
-	uint8_t val[2];
-
-	mfd_rv3032_read_regs(config->mfd, RV3032_REG_CONTROL1, val, 2);
-
-	*ticks = (val[1]<<8) | val[0];
-
-	return 0;
+	ARG_UNUSED(dev);
+	ARG_UNUSED(ticks);
+	return -ENOTSUP;
 }
 
 int rv3032_counter_reset(const struct device *dev)
