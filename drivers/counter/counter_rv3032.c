@@ -97,8 +97,8 @@ int rv3032_counter_set_alarm(const struct device *dev, uint8_t chan_id,
 	data->alarm_cfg0.flags = alarm_cfg->flags;
 	data->alarm_cfg0.ticks = alarm_cfg->ticks;
 
-	if (alarm_cfg->ticks > 4096) {
-		LOG_ERR("alarm_cfg->ticks %d) Max value (4096)", alarm_cfg->ticks);
+	if (alarm_cfg->ticks > config->counter_info.max_top_value) {
+		LOG_ERR("alarm_cfg->ticks %d) Max value (%d)", alarm_cfg->ticks, config->counter_info.max_top_value);
 		return -ENOTSUP;
 	}
 
@@ -277,12 +277,12 @@ static DEVICE_API(counter, rv3032_counter_api) = {
 	.get_top_value = rv3032_counter_get_top_value,
 };
 
-#define rv3032_counter_INIT(inst)                                                                  \
+#define RV3032_COUNTER_INIT(inst)                                                                  \
 	static const struct rv3032_counter_config rv3032_counter_config_##inst = {                 \
 		.counter_info = {                                                                  \
-			.max_top_value = 4096,                                                     \
+			.max_top_value = 4095,                                                     \
 			.freq = DT_INST_PROP_OR(inst, frequency, 4096),                            \
-			.flags = COUNTER_CONFIG_INFO_COUNT_UP,                                     \
+			.flags = 0,                                     \
 			.channels = 1,                                                             \
 		},                                                                                 \
 		.mfd = DEVICE_DT_GET(DT_INST_PARENT(inst)),                                        \
@@ -294,4 +294,4 @@ static DEVICE_API(counter, rv3032_counter_api) = {
 			      CONFIG_COUNTER_MICROCRYSTAL_RV3032_INIT_PRIORITY,                    \
 			      &rv3032_counter_api);
 
-DT_INST_FOREACH_STATUS_OKAY(rv3032_counter_INIT)
+DT_INST_FOREACH_STATUS_OKAY(RV3032_COUNTER_INIT)
