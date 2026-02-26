@@ -194,6 +194,9 @@ int rv3032_counter_cancel_alarm(const struct device *dev, uint8_t chan_id)
 	return err;
 }
 
+/* The Counter API does not specify a return value for errors, so UINT32_MAX is
+ * used for errors here.
+ */
 uint32_t rv3032_counter_get_pending_int(const struct device *dev)
 {
 	const struct rv3032_counter_config *config = dev->config;
@@ -202,23 +205,11 @@ uint32_t rv3032_counter_get_pending_int(const struct device *dev)
 
 	err = mfd_rv3032_read_reg8(config->mfd, RV3032_REG_STATUS, &status);
 	if (err) {
-		LOG_ERR("TIMER register read failed : %d", err);
-		return err;
+		LOG_ERR("Status register read failed : %d", err);
+		return UINT32_MAX;
 	}
 
-	/* Check timer bit in status reg, if there is pending int fire ISR*/
-	if (status & RV3032_STATUS_TF) {
-		err = mfd_rv3032_update_reg8(config->mfd, RV3032_REG_STATUS, RV3032_STATUS_TF,
-					     RV3032_STATUS_TF);
-		if (err) {
-			LOG_ERR("TIMER register read failed : %d", err);
-			return err;
-		}
-
-		rv3032_counter_isr(dev);
-	}
-
-	return err;
+	return (status & RV3032_STATUS_TF) > 0;
 }
 
 int rv3032_counter_set_top_value(const struct device *dev, const struct counter_top_cfg *cfg)
